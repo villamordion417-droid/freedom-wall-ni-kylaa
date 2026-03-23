@@ -12,7 +12,19 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
-from decouple import config, Csv
+
+# helper for backward-compatible env config without decouple
+def config(name, default=None, cast=None):
+    value = os.getenv(name, default)
+    if cast is bool:
+        if isinstance(value, str):
+            return value.lower() in ('1', 'true', 'yes', 'on')
+        return bool(value)
+    if cast is list or cast is tuple:
+        if isinstance(value, str):
+            return [x.strip() for x in value.split(',') if x.strip()]
+        return list(value) if value is not None else []
+    return value
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -27,7 +39,8 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-es@0szx#9as_w(v)44e+s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=list)
+
 
 # For Render deployment set this env var to your render app domain, e.g.
 # ALLOWED_HOSTS=your-app-name.onrender.com

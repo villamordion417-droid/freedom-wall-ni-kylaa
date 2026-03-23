@@ -29,6 +29,9 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
 
+# For Render deployment set this env var to your render app domain, e.g.
+# ALLOWED_HOSTS=your-app-name.onrender.com
+# For testing only, use ALLOWED_HOSTS='*' to allow all hosts.
 
 # Application definition
 

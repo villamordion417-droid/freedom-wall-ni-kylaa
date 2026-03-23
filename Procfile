@@ -1,1 +1,1 @@
-web: gunicorn kylaaaa.wsgi:application
+web: cd kylaaaa && gunicorn kylaaaa.wsgi:application

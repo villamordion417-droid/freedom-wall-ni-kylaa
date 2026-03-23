@@ -1,0 +1,109 @@
+{% extends 'freedom/base.html' %}
+{% load static %}
+
+{% block content %}
+  <section class="instructions">
+    <p class="note"><strong>Direction:</strong> Before you vent, tell us how you feel (e.g., sad, angry, exhausted, calm, happy). This helps us set the tone; the page background will fade to match your emotion.</p>
+  </section>
+
+  <section class="vent-form">
+    <form method="post" id="vent-form">
+      {% csrf_token %}
+      <datalist id="emotions">
+        <option value="sad">
+        <option value="angry">
+        <option value="happy">
+        <option value="calm">
+        <option value="exhausted">
+        <option value="anxious">
+      </datalist>
+
+      {{ form.emotion }}
+      {{ form.text }}
+      <button type="submit">Let it out</button>
+      <div id="form-error" class="form-error" style="display:none;color:#8b0000;margin-top:8px"></div>
+    </form>
+  </section>
+
+  <script>
+    (function(){
+      var form = document.getElementById('vent-form');
+      if (!form) return;
+      var errorBox = document.getElementById('form-error');
+      var allowed = ['sad','angry','happy','calm','exhausted','anxious','neutral'];
+      var synonyms = {
+        'sad': ['sad','depressed','miserable','lonely','alone'],
+        'angry': ['angry','mad','furious','rage'],
+        'happy': ['happy','joy','joyful','glad','excited'],
+        'calm': ['calm','peaceful','relaxed','serene'],
+        'exhausted': ['exhausted','tired','sleepy','drained'],
+        'anxious': ['anxious','anxiety','worried','nervous','panic']
+      };
+
+      function canonicalFromWord(w){
+        if(!w) return null;
+        w = w.toLowerCase();
+        for(var c in synonyms){
+          if(synonyms[c].indexOf(w) !== -1) return c;
+        }
+        if(allowed.indexOf(w) !== -1) return w;
+        return null;
+      }
+
+      form.addEventListener('submit', function(e){
+        errorBox.style.display = 'none';
+        var textEl = form.querySelector('textarea[name="text"]');
+        var emoEl = form.querySelector('input[name="emotion"]');
+        var text = (textEl && textEl.value || '').trim();
+        var emotionVal = (emoEl && emoEl.value || '').trim();
+
+        // try to extract from start: "I'm sad" or "I am angry" or leading word
+        var m = text.match(/^\s*(?:i(?:'m| am)\s+)([a-zA-Z]+)/i) || text.match(/^\s*([a-zA-Z]+)/i);
+        var extracted = m ? m[1] : null;
+        var canon = null;
+        if (emotionVal) canon = canonicalFromWord(emotionVal);
+        if (!canon && extracted) canon = canonicalFromWord(extracted);
+
+        if (!canon) {
+          e.preventDefault();
+          errorBox.textContent = 'Please begin your vent by stating how you feel (e.g., "I\'m sad") or fill the "How do you feel?" field with a simple emotion like sad, angry, calm.';
+          errorBox.style.display = '';
+          return false;
+        }
+
+        // fill emotion field with canonical value to help server
+        if (emoEl && !emotionVal) emoEl.value = canon;
+        // allow submit
+      });
+    })();
+  </script>
+
+  {% if submitted_emotion %}
+    <section class="result">
+      <p>We heard: <strong>{{ submitted_emotion }}</strong>. The background has been set to match your mood.</p>
+
+    </section>
+    <script>
+      (function(){
+        var color = "{{ bg_color|default:'#ffffff' }}";
+        document.body.style.transition = 'background-color 1s ease';
+        // start from white, then set color (fade)
+        document.body.style.backgroundColor = '#ffffff';
+        setTimeout(function(){ document.body.style.backgroundColor = color; }, 50);
+      })();
+    </script>
+  {% endif %}
+
+  <section class="feed">
+    <h2>Recent vents</h2>
+    {% for post in posts %}
+      <article class="post" style="background: rgba(255,255,255,0.9);">
+        <time>{{ post.created_at }}</time>
+        <p class="text">{{ post.text|linebreaksbr }}</p>
+        <p class="meta">Emotion: <strong>{{ post.emotion }}</strong></p>
+      </article>
+    {% empty %}
+      <p>No vents yet — be the first.</p>
+    {% endfor %}
+  </section>
+{% endblock %}

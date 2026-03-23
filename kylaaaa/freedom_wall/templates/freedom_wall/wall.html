@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freedom Wall</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-center mb-8">Freedom Wall</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for post in posts %}
+            <div class="card p-6 rounded-lg shadow-lg {% if post.emotion == 'happy' %}bg-green-200 border-green-400{% elif post.emotion == 'sad' %}bg-blue-200 border-blue-400{% elif post.emotion == 'angry' %}bg-red-200 border-red-400{% elif post.emotion == 'excited' %}bg-yellow-200 border-yellow-400{% elif post.emotion == 'anxious' %}bg-purple-200 border-purple-400{% else %}bg-gray-200 border-gray-400{% endif %} border-2">
+                <p class="text-lg mb-2">{{ post.content }}</p>
+                <div class="text-sm text-gray-600">
+                    <span class="font-semibold">{{ post.get_emotion_display }}</span> - {{ post.created_at|date:"M d, Y H:i" }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if not posts %}
+        <p class="text-center text-gray-500 mt-8">No posts yet. Be the first to share!</p>
+        {% endif %}
+    </div>
+</body>
+</html>

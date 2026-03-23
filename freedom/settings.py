@@ -8,7 +8,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='django-insecure-default-key')
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['freedom-wall-ni-kylaa-2.onrender.com/', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['freedom-wall-ni-kylaa-2.onrender.com', 'localhost', '127.0.0.1']
 render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if render_external_hostname:
     ALLOWED_HOSTS.append(render_external_hostname)
@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'freedom_wall',
     
 ]
 
@@ -34,7 +35,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'Freedom-Wall-ni-Kylaa.urls'
+ROOT_URLCONF = 'freedom.urls'
 
 TEMPLATES = [
     {

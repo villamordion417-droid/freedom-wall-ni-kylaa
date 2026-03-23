@@ -9,3 +9,5 @@ services:
         value: kylaaaa.settings
       - key: DEBUG
         value: false
+      - key: ALLOWED_HOSTS
+        value: '*'
